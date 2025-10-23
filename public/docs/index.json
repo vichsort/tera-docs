@@ -4,7 +4,10 @@
     "nome": "Bratz (API)",
     "descricao": "API para o sistema de ponto de venda Bratz.",
     "tags": ["Flask", "PostgreSQL", "Financeiro", "PDV"],
-    "arquivoSpec": "/docs/bratz-api.json" 
+    "arquivoSpec": "/docs/bratz-api.json" ,
+    "links": {
+      "github": "https://github.com/vichsort/BratzCORE"
+    }
   },
   {
     "id": "faif-api",
@@ -12,7 +15,10 @@
     "descricao": "Facilitador de acesso a informação de APIs do governo.",
     "tags": ["Flask", "Governo", "Middleware", "APIs Públicas"],
     "arquivoSpec": "/docs/faif-api.json",
-    "color": "#0d6efd"
+    "color": "#0d6efd",
+    "links": {
+      "github": "https://github.com/vichsort/FAIFAPI"
+    }
   },
   {
     "id": "consorcio-ita",
@@ -20,7 +26,10 @@
     "descricao": "Tracking de emissões de CO2 para o projeto Itá.",
     "tags": ["Flask", "Vue.js", "PostgreSQL", "Sustentabilidade"],
     "arquivoSpec": "/docs/consorcio-ita.json",
-    "color": "#198754"
+    "color": "#198754",
+    "links": {
+      "github": "https://github.com/vichsort/test-ita"
+    }
   },
   {
     "id": "pe-signage",

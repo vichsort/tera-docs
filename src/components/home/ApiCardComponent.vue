@@ -62,20 +62,22 @@ function getTagStyle(tag) {
 </script>
 
 <template>
-  <RouterLink :to="apiLink" class="api-card">
+  <div class="api-card">
     
-    <header 
-      class="card-header" 
-      :style="{ backgroundColor: cardColor }"
-    >
-      <h3 class="card-title">{{ api.nome }}</h3>
-      <p class="card-subtitle">{{ api.descricao }}</p>
-    </header>
-    
-    <div class="card-body">
+    <RouterLink :to="apiLink" class="card-main-link">
+      <header 
+        class="card-header" 
+        :style="{ backgroundColor: cardColor }"
+      >
+        <h3 class="card-title">{{ api.nome }}</h3>
+        <p class="card-subtitle">{{ api.descricao }}</p>
+      </header>
+      
+      <div class="card-body">
       </div>
+    </RouterLink>
     
-   <footer class="card-footer">
+    <footer class="card-footer">
       <div class="tags-container">
         <span 
           v-for="tag in api.tags" 
@@ -86,9 +88,22 @@ function getTagStyle(tag) {
           {{ tag }}
         </span>
       </div>
-    </footer>
+      
+      <div v-if="api.links" class="card-links">
+        <a 
+          v-if="api.links.github"
+          :href="api.links.github"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="icon-link"
+          title="Ver código-fonte no GitHub"
+        >
+          <img src="/github.png" alt="visualizar o projeto no github" height="16px" width="16px">
+        </a>
+      </div>
+      </footer>
     
-  </RouterLink>
+  </div>
 </template>
 
 <style scoped>
@@ -111,6 +126,18 @@ function getTagStyle(tag) {
   transform: translateY(-4px);
   box-shadow: 0 4px 8px 0 rgba(60,64,67,0.3), 0 6px 20px 0 rgba(60,64,67,0.19);
 }
+
+.card-main-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.card-main-link:hover .card-title {
+  text-decoration: underline;
+}
+
 
 .card-header {
   padding: 1.5rem;
@@ -143,15 +170,20 @@ function getTagStyle(tag) {
 }
 
 .card-footer {
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border-top: 1px solid #e0e0e0;
   background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
 }
 
 .tags-container {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  flex-basis: 80%; 
 }
 
 .api-tag {
@@ -161,5 +193,26 @@ function getTagStyle(tag) {
   border-radius: 16px;
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+.card-links {
+  display: flex;
+  gap: 0.75rem;
+}
+.icon-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f1f3f4;
+  color: #5f6368;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.icon-link:hover {
+  background-color: #202124;
+  color: #ffffff;
 }
 </style>
