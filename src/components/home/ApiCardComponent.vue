@@ -22,6 +22,43 @@ const cardColor = computed(() => {
 const apiLink = computed(() => {
   return `/api/${props.api.id}`
 })
+
+// Mapeia nomes de tags (em minúsculo) para cores
+const tagColorMap = {
+  // backend
+  'flask': { background: '#333333', color: '#ffffff' },
+  'php': { background: '#7A86B8', color: '#ffffff' },
+  'node': { background: '#68A063', color: '#ffffff' },
+  
+  // database
+  'postgresql': { background: '#336791', color: '#ffffff' },
+  'mysql': { background: '#00758F', color: '#ffffff' },
+  'mariadb': { background: '#003545', color: '#ffffff' },
+  
+  // frontend
+  'vue.js': { background: '#42b883', color: '#ffffff' },
+  'react': { background: '#61dafb', color: '#000000' },
+  'angular': { background: '#dd0031', color: '#ffffff' },
+  
+  // outros: sem cores específicas
+}
+
+// Função que retorna o objeto de estilo para a tag
+function getTagStyle(tag) {
+  const normalizedTag = tag.toLowerCase()
+  
+  // Se a tag estiver no mapa, retorna as cores.
+  if (tagColorMap[normalizedTag]) {
+    return {
+      backgroundColor: tagColorMap[normalizedTag].background,
+      color: tagColorMap[normalizedTag].color,
+      borderColor: 'transparent' // Remove borda se for colorida
+    }
+  }
+  
+  // Senão, retorna o estilo padrão (cinza)
+  return {} // O estilo padrão já está no CSS
+}
 </script>
 
 <template>
@@ -38,9 +75,14 @@ const apiLink = computed(() => {
     <div class="card-body">
       </div>
     
-    <footer class="card-footer">
+   <footer class="card-footer">
       <div class="tags-container">
-        <span v-for="tag in api.tags" :key="tag" class="api-tag">
+        <span 
+          v-for="tag in api.tags" 
+          :key="tag" 
+          class="api-tag"
+          :style="getTagStyle(tag)"
+        >
           {{ tag }}
         </span>
       </div>
