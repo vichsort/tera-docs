@@ -61,7 +61,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   gap: 2rem;
   padding: 2rem;
-  justify-content: flex-start; 
+  justify-content: center; 
 }
 
 .loading-state, .error-state {

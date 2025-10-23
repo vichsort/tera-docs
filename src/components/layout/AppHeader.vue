@@ -7,6 +7,7 @@ import { RouterLink } from 'vue-router'
     <div class="header-container">
       
       <RouterLink to="/" class="logo">
+        <img src="/tera.png" alt="tera docs" style="height:44px; vertical-align: middle; margin-right:8px;" />
         <strong>tera</strong> docs
       </RouterLink>
 
@@ -58,6 +59,10 @@ import { RouterLink } from 'vue-router'
 
 .logo strong {
   font-weight: 700;
+}
+
+.logo::selection {
+  background-color: #a7c3e0;
 }
 
 .navigation {
