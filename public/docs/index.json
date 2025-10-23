@@ -1,0 +1,33 @@
+[
+  {
+    "id": "bratz-api",
+    "nome": "Bratz (API)",
+    "descricao": "API para o sistema de ponto de venda Bratz.",
+    "tags": ["Flask", "PostgreSQL", "Financeiro", "PDV"],
+    "arquivoSpec": "/docs/bratz-api.json" 
+  },
+  {
+    "id": "faif-api",
+    "nome": "FAIF (API)",
+    "descricao": "Facilitador de acesso a informação de APIs do governo.",
+    "tags": ["Flask", "Governo", "Middleware", "APIs Públicas"],
+    "arquivoSpec": "/docs/faif-api.json",
+    "color": "#0d6efd"
+  },
+  {
+    "id": "consorcio-ita",
+    "nome": "Contabilização de CO2",
+    "descricao": "Tracking de emissões de CO2 para o projeto Itá.",
+    "tags": ["Flask", "Vue.js", "PostgreSQL", "Sustentabilidade"],
+    "arquivoSpec": "/docs/consorcio-ita.json",
+    "color": "#198754"
+  },
+  {
+    "id": "pe-signage",
+    "nome": "Digital Signage",
+    "descricao": "Projeto de sinalização digital.",
+    "tags": ["PHP", "MariaDB", "Sinalização", "Digital Signage"],
+    "arquivoSpec": "/docs/pe-signage.json",
+    "color": "#6f42c1"
+  }
+]

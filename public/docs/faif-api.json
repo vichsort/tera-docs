@@ -1,0 +1,224 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FAIF - Facilitador de Acesso a Informação",
+    "description": "API middleware para facilitar o acesso e consumo de dados de diversas APIs do governo.\n\nEsta API atua como um *facilitador*, unificando endpoints complexos e fornecendo uma interface simples para o aplicativo móvel FAIF.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Equipe FAIF",
+      "email": "dev@faif.example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.faif.example.com/v1",
+      "description": "Servidor de Produção"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autenticação",
+      "description": "Endpoints para autenticação de usuários (provavelmente via Gov.br)"
+    },
+    {
+      "name": "Cidadão",
+      "description": "Endpoints para consulta de dados unificados do cidadão"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Autenticação"],
+        "summary": "Autenticar usuário",
+        "description": "Autentica o usuário (provavelmente contra uma base do Gov.br) e retorna um token JWT para uso nos endpoints protegidos.",
+        "operationId": "loginUser",
+        "requestBody": {
+          "description": "Credenciais do usuário (CPF e senha)",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCredentials"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login bem-sucedido. Retorna o token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthToken"
+                },
+                "examples": {
+                  "exemploSucesso": {
+                    "summary": "Token de acesso",
+                    "value": {
+                      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikp...",
+                      "expires_in": 3600
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas ou usuário não autorizado.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "examples": {
+                  "exemploErro": {
+                    "summary": "Credenciais inválidas",
+                    "value": {
+                      "codigo": "ERRO_AUTENTICACAO",
+                      "mensagem": "CPF ou senha inválidos."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cidadao/perfil": {
+      "get": {
+        "tags": ["Cidadão"],
+        "summary": "Obter perfil unificado do cidadão",
+        "description": "Busca informações consolidadas do cidadão de múltiplas fontes (ex: Receita Federal, INSS) usando o token JWT fornecido.",
+        "operationId": "getPerfilCidadao",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil consolidado do cidadão.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PerfilCidadao"
+                },
+                "examples": {
+                  "cidadaoRegular": {
+                    "summary": "Exemplo de cidadão regular",
+                    "value": {
+                      "nome": "João da Silva",
+                      "cpf": "111.222.333-44",
+                      "data_nascimento": "1980-05-10",
+                      "situacao_cadastral_cpf": "REGULAR",
+                      "inss_beneficios_ativos": true,
+                      "cnh": {
+                        "numero": "987654321",
+                        "validade": "2028-10-20"
+                      }
+                    }
+                  },
+                  "cidadaoPendente": {
+                    "summary": "Exemplo com pendências",
+                    "value": {
+                      "nome": "Maria Oliveira",
+                      "cpf": "222.333.444-55",
+                      "data_nascimento": "1990-11-30",
+                      "situacao_cadastral_cpf": "PENDENTE DE REGULARIZAÇÃO",
+                      "inss_beneficios_ativos": false,
+                      "cnh": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Não autorizado. Token JWT inválido ou ausente.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "examples": {
+                  "tokenExpirado": {
+                    "summary": "Token expirado",
+                    "value": {
+                      "codigo": "TOKEN_EXPIRADO",
+                      "mensagem": "O token de acesso expirou."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginCredentials": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "example": "123.456.789-00"
+          },
+          "senha": {
+            "type": "string",
+            "format": "password",
+            "example": "suaSenhaSegura123"
+          }
+        },
+        "required": ["cpf", "senha"]
+      },
+      "AuthToken": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "integer",
+            "example": 3600
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string"
+          },
+          "mensagem": {
+            "type": "string"
+          }
+        }
+      },
+      "PerfilCidadao": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string" },
+          "cpf": { "type": "string" },
+          "data_nascimento": { "type": "string", "format": "date" },
+          "situacao_cadastral_cpf": { "type": "string" },
+          "inss_beneficios_ativos": { "type": "boolean" },
+          "cnh": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "numero": { "type": "string" },
+              "validade": { "type": "string", "format": "date" }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT de autenticação obtido no endpoint /auth/login"
+      }
+    }
+  }
+}
