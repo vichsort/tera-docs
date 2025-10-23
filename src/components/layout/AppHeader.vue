@@ -16,7 +16,7 @@ import { RouterLink } from 'vue-router'
         </RouterLink>
         
         <a 
-          href="https://github.com/seu-usuario/tera-docs" 
+          href="https://github.com/vichsort/tera-docs" 
           target="_blank" 
           rel="noopener noreferrer" 
           class="nav-link"

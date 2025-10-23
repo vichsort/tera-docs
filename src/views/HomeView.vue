@@ -16,7 +16,7 @@ const apiList = ref([
     "nome": "FAIF Middleware",
     "descricao": "Facilitador de acesso a informação.",
     "tags": ["Flask", "Governo"],
-    "color": "#d63384";
+    "color": "#d63384",
   }
 ])
 </script>
