@@ -1,10 +1,10 @@
 [
   {
-    "id": "bratz-api",
+    "id": "bratz-core",
     "nome": "Bratz (API)",
     "descricao": "API para o sistema de ponto de venda Bratz.",
     "tags": ["Flask", "PostgreSQL", "Financeiro", "PDV"],
-    "arquivoSpec": "/docs/bratz-api.json" ,
+    "arquivoSpec": "/docs/bratz-core.json" ,
     "links": {
       "github": "https://github.com/vichsort/BratzCORE"
     }
@@ -30,13 +30,5 @@
     "links": {
       "github": "https://github.com/vichsort/test-ita"
     }
-  },
-  {
-    "id": "pe-signage",
-    "nome": "Digital Signage",
-    "descricao": "Projeto de sinalização digital.",
-    "tags": ["PHP", "MariaDB", "Sinalização", "Digital Signage"],
-    "arquivoSpec": "/docs/pe-signage.json",
-    "color": "#6f42c1"
   }
 ]

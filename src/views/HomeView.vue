@@ -2,6 +2,14 @@
 import { ref, onMounted } from 'vue'
 import ApiCardComponent from '@/components/home/ApiCardComponent.vue'
 
+/**
+ * @file HomeView.vue
+ * @description A "página" principal (dashboard) que exibe uma grade
+ * de cards, cada um representando uma documentação de API disponível.
+ * Esta view é responsável por buscar o 'index.json' mestre que
+ * lista todas as APIs.
+ */
+
 const apiList = ref([]) 
 const isLoading = ref(true) 
 const errorMsg = ref(null) 

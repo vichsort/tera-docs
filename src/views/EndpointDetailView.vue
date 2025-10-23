@@ -3,6 +3,15 @@ import { inject, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { marked } from 'marked' // Para a descrição do endpoint
 
+/**
+ * @file EndpointDetailView.vue
+ * @description A "página" lateral do sistema de exibição que detalha um
+ * endpoint específico da API. Mostra informações como método, caminho,
+ * descrição, parâmetros e exemplos de resposta. Esta view é acessada
+ * quando o usuário clica em um endpoint na sidebar.
+ * Também reutiliza componentes de "widgets" para exibir tabelas de uso.
+ */
+
 // Importa os "widgets" que acabamos de criar
 import ParameterTable from '@/components/docs/ParameterTableComponent.vue'
 import ResponseSamples from '@/components/docs/ResponseSamplesComponent.vue'

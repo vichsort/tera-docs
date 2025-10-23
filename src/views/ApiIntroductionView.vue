@@ -2,6 +2,16 @@
 import { inject, computed } from 'vue'
 import { marked } from 'marked'
 
+/**
+ * @file ApiIntroductionView.vue
+ * @description A "página" lateral do sistema de exibição que inicia o
+ * junto ao usuário na documentação de uma API. Mostra informações como
+ * título, versão, contato e uma descrição geral da API. Também reutiliza
+ * componentes de "widgets" para exibir tabelas de uso. Esta view é
+ * acessada quando o usuário seleciona uma API na página inicial.
+ * Com suporte à formatação Markdown para a descrição convertida em HTML.
+ */
+
 const apiSpec = inject('apiSpec')
 const isLoading = inject('isLoadingSpec')
 

@@ -2,78 +2,232 @@
   "openapi": "3.0.3",
   "info": {
     "title": "FAIF - Facilitador de Acesso a Informação",
-    "description": "API middleware para facilitar o acesso e consumo de dados de diversas APIs do governo.\n\nEsta API atua como um *facilitador*, unificando endpoints complexos e fornecendo uma interface simples para o aplicativo móvel FAIF.",
-    "version": "1.0.0",
-    "contact": {
-      "name": "Equipe FAIF",
-      "email": "dev@faif.example.com"
-    }
+    "description": "API middleware Flask para facilitar o acesso e consumo de dados de diversas APIs do governo. Todas as respostas seguem um padrão com `ok: true` para sucesso e `ok: false` para erros.",
+    "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "https://api.faif.example.com/v1",
-      "description": "Servidor de Produção"
+      "url": "http://localhost:5000",
+      "description": "Servidor de Desenvolvimento Local"
     }
   ],
   "tags": [
-    {
-      "name": "Autenticação",
-      "description": "Endpoints para autenticação de usuários (provavelmente via Gov.br)"
-    },
-    {
-      "name": "Cidadão",
-      "description": "Endpoints para consulta de dados unificados do cidadão"
-    }
+    { "name": "Deputados", "description": "Endpoints da API de Deputados." },
+    { "name": "Endereçamento", "description": "Consulta de CEP." },
+    { "name": "Receita Federal", "description": "Consulta de CNPJ." },
+    { "name": "Portal da Transparência", "description": "Endpoints do Portal da Transparência." },
+    { "name": "IBGE", "description": "Endpoints do IBGE." },
+    { "name": "Serviços do Governo", "description": "Consulta de órgãos e serviços." },
+    { "name": "Sistema", "description": "Monitoramento e health check." }
   ],
   "paths": {
-    "/auth/login": {
-      "post": {
-        "tags": ["Autenticação"],
-        "summary": "Autenticar usuário",
-        "description": "Autentica o usuário (provavelmente contra uma base do Gov.br) e retorna um token JWT para uso nos endpoints protegidos.",
-        "operationId": "loginUser",
-        "requestBody": {
-          "description": "Credenciais do usuário (CPF e senha)",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginCredentials"
-              }
-            }
+    "/faif/deputados": {
+      "get": {
+        "tags": ["Deputados"],
+        "summary": "Busca deputados por nome",
+        "description": "Busca deputados por nome e retorna uma lista simplificada.",
+        "operationId": "getDeputadosPorNome",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": true,
+            "description": "Nome do deputado a ser pesquisado.",
+            "schema": { "type": "string", "example": "tiririca" }
           }
-        },
+        ],
         "responses": {
           "200": {
-            "description": "Login bem-sucedido. Retorna o token.",
+            "description": "Lista de deputados encontrada.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthToken"
-                },
-                "examples": {
-                  "exemploSucesso": {
-                    "summary": "Token de acesso",
-                    "value": {
-                      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikp...",
-                      "expires_in": 3600
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/DeputadoSimples" }
                     }
                   }
                 }
               }
             }
           },
-          "401": {
-            "description": "Credenciais inválidas ou usuário não autorizado.",
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/faif/deputados/{id}": {
+      "get": {
+        "tags": ["Deputados"],
+        "summary": "Busca deputado detalhado por ID",
+        "description": "Retorna os dados detalhados de um deputado específico.",
+        "operationId": "getDeputadoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID numérico do deputado.",
+            "schema": { "type": "integer", "example": 160976 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do deputado.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
-                "examples": {
-                  "exemploErro": {
-                    "summary": "Credenciais inválidas",
-                    "value": {
-                      "codigo": "ERRO_AUTENTICACAO",
-                      "mensagem": "CPF ou senha inválidos."
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": { "$ref": "#/components/schemas/DeputadoDetalhado" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/faif/cep/{cep}": {
+      "get": {
+        "tags": ["Endereçamento"],
+        "summary": "Consulta dados de CEP",
+        "description": "Retorna os dados do CEP.",
+        "operationId": "getCep",
+        "parameters": [
+          {
+            "name": "cep",
+            "in": "path",
+            "required": true,
+            "description": "CEP a ser consultado (com ou sem máscara).",
+            "schema": { "type": "string", "example": "89700-001" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do endereço.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": { "$ref": "#/components/schemas/CepData" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/faif/transparencia/pessoa-fisica": {
+      "get": {
+        "tags": ["Portal da Transparência"],
+        "summary": "Consulta Pessoa Física (Transparência)",
+        "description": "Retorna dados de uma pessoa física (ex: CPF).",
+        "operationId": "getPessoaFisica",
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "query",
+            "required": true,
+            "description": "CPF a ser consultado.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados da pessoa física.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": { "$ref": "#/components/schemas/PessoaFisicaData" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/faif/cnpj/{cnpj}": {
+      "get": {
+        "tags": ["Receita Federal"],
+        "summary": "Consulta dados de CNPJ",
+        "description": "Retorna dados de uma pessoa jurídica (CNPJ).",
+        "operationId": "getCnpj",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ a ser consultado (somente números).",
+            "schema": { "type": "string", "example": "00000000000191" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados da empresa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": { "$ref": "#/components/schemas/CnpjData" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/faif/transparencia/emendas/{page}": {
+      "get": {
+        "tags": ["Portal da Transparência"],
+        "summary": "Busca emendas parlamentares",
+        "description": "Busca emendas parlamentares no Portal da Transparência.",
+        "operationId": "getEmendas",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "description": "Número da página de resultados.",
+            "schema": { "type": "integer", "default": 1, "minimum": 1 }
+          },
+          { "name": "codigoEmenda", "in": "query", "schema": { "type": "string" } },
+          { "name": "numeroEmenda", "in": "query", "schema": { "type": "string" } },
+          { "name": "nomeAutor", "in": "query", "schema": { "type": "string" } },
+          { "name": "ano", "in": "query", "schema": { "type": "integer" } },
+          { "name": "tipoEmenda", "in": "query", "schema": { "type": "string" } },
+          { "name": "codigoFuncao", "in": "query", "schema": { "type": "string" } },
+          { "name": "codigoSubfuncao", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emendas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/EmendaData" }
                     }
                   }
                 }
@@ -83,66 +237,206 @@
         }
       }
     },
-    "/cidadao/perfil": {
+    "/faif/health": {
       "get": {
-        "tags": ["Cidadão"],
-        "summary": "Obter perfil unificado do cidadão",
-        "description": "Busca informações consolidadas do cidadão de múltiplas fontes (ex: Receita Federal, INSS) usando o token JWT fornecido.",
-        "operationId": "getPerfilCidadao",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
+        "tags": ["Sistema"],
+        "summary": "Health Check",
+        "description": "Verifica a saúde da aplicação.",
+        "operationId": "getHealth",
         "responses": {
           "200": {
-            "description": "Perfil consolidado do cidadão.",
+            "description": "Aplicação saudável.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PerfilCidadao"
-                },
-                "examples": {
-                  "cidadaoRegular": {
-                    "summary": "Exemplo de cidadão regular",
-                    "value": {
-                      "nome": "João da Silva",
-                      "cpf": "111.222.333-44",
-                      "data_nascimento": "1980-05-10",
-                      "situacao_cadastral_cpf": "REGULAR",
-                      "inss_beneficios_ativos": true,
-                      "cnh": {
-                        "numero": "987654321",
-                        "validade": "2028-10-20"
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": { "type": "string", "example": "healthy" }
                       }
-                    }
-                  },
-                  "cidadaoPendente": {
-                    "summary": "Exemplo com pendências",
-                    "value": {
-                      "nome": "Maria Oliveira",
-                      "cpf": "222.333.444-55",
-                      "data_nascimento": "1990-11-30",
-                      "situacao_cadastral_cpf": "PENDENTE DE REGULARIZAÇÃO",
-                      "inss_beneficios_ativos": false,
-                      "cnh": null
                     }
                   }
                 }
               }
             }
-          },
-          "401": {
-            "description": "Não autorizado. Token JWT inválido ou ausente.",
+          }
+        }
+      }
+    },
+    "/faif/historico": {
+      "get": {
+        "tags": ["Sistema"],
+        "summary": "Histórico de Requisições",
+        "description": "Endpoint para listar o histórico de requisições.",
+        "operationId": "getHistorico",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Número de resultados a serem retornados.",
+            "schema": { "type": "integer", "default": 10 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de itens do histórico.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
-                "examples": {
-                  "tokenExpirado": {
-                    "summary": "Token expirado",
-                    "value": {
-                      "codigo": "TOKEN_EXPIRADO",
-                      "mensagem": "O token de acesso expirou."
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/HistoricoItem" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faif/ibge": {
+      "get": {
+        "tags": ["IBGE"],
+        "summary": "Busca dados do IBGE",
+        "description": "Busca dados do IBGE. Se um termo 'q' for fornecido, filtra. Senão, retorna a lista completa.",
+        "operationId": "getIbge",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Termo de pesquisa (ex: nome de cidade).",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultados da busca no IBGE.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/IbgeItem" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/faif/servicos/orgao/{cod}": {
+      "get": {
+        "tags": ["Serviços do Governo"],
+        "summary": "Consulta dados de um Órgão",
+        "description": "Consulta dados de um órgão via API de serviços do governo.",
+        "operationId": "getOrgao",
+        "parameters": [
+          {
+            "name": "cod",
+            "in": "path",
+            "required": true,
+            "description": "Código do órgão.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do órgão.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": { "$ref": "#/components/schemas/OrgaoData" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/faif/servicos/servico/{cod}": {
+      "get": {
+        "tags": ["Serviços do Governo"],
+        "summary": "Consulta dados de um Serviço",
+        "description": "Consulta dados de um serviço via API de serviços do governo.",
+        "operationId": "getServico",
+        "parameters": [
+          {
+            "name": "cod",
+            "in": "path",
+            "required": true,
+            "description": "Código do serviço.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do serviço.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": { "$ref": "#/components/schemas/ServicoData" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/faif/transparencia/servidores": {
+      "get": {
+        "tags": ["Portal da Transparência"],
+        "summary": "Busca Servidores (Transparência)",
+        "description": "Busca pessoas físicas no Portal da Transparência e filtra por 'vinculo' contendo 'Servidor'.",
+        "operationId": "getServidores",
+        "parameters": [
+          {
+            "name": "nome",
+            "in": "query",
+            "required": true,
+            "description": "Nome do servidor a ser buscado.",
+            "schema": { "type": "string", "example": "Silva" }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "description": "Número da página.",
+            "schema": { "type": "integer", "default": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de servidores encontrados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ServidorData" }
                     }
                   }
                 }
@@ -155,69 +449,99 @@
   },
   "components": {
     "schemas": {
-      "LoginCredentials": {
+      "BaseError": {
         "type": "object",
         "properties": {
-          "cpf": {
-            "type": "string",
-            "example": "123.456.789-00"
-          },
-          "senha": {
-            "type": "string",
-            "format": "password",
-            "example": "suaSenhaSegura123"
-          }
+          "code": { "type": "string", "example": "CODIGO_DO_ERRO" },
+          "message": { "type": "string", "example": "Mensagem clara sobre o que aconteceu." },
+          "details": { "type": "object", "nullable": true }
         },
-        "required": ["cpf", "senha"]
+        "required": ["code", "message"]
       },
-      "AuthToken": {
+      "ErrorResponse": {
         "type": "object",
         "properties": {
-          "token": {
-            "type": "string"
-          },
-          "expires_in": {
-            "type": "integer",
-            "example": 3600
-          }
+          "ok": { "type": "boolean", "example": false },
+          "error": { "$ref": "#/components/schemas/BaseError" }
         }
       },
-      "Error": {
+      "DeputadoSimples": {
         "type": "object",
         "properties": {
-          "codigo": {
-            "type": "string"
-          },
-          "mensagem": {
-            "type": "string"
-          }
+          "id": { "type": "integer" },
+          "nome": { "type": "string" },
+          "partido": { "type": "string" }
         }
       },
-      "PerfilCidadao": {
+      "DeputadoDetalhado": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nomeCivil": { "type": "string" },
+          "nomeEleitoral": { "type": "string" },
+          "partido": { "type": "string" },
+          "uf": { "type": "string" },
+          "gabinete": { "type": "string" }
+        }
+      },
+      "CepData": {
+        "type": "object",
+        "properties": {
+          "cep": { "type": "string" },
+          "logradouro": { "type": "string" },
+          "bairro": { "type": "string" },
+          "localidade": { "type": "string" },
+          "uf": { "type": "string" }
+        }
+      },
+      "PessoaFisicaData": {
         "type": "object",
         "properties": {
           "nome": { "type": "string" },
-          "cpf": { "type": "string" },
-          "data_nascimento": { "type": "string", "format": "date" },
-          "situacao_cadastral_cpf": { "type": "string" },
-          "inss_beneficios_ativos": { "type": "boolean" },
-          "cnh": {
-            "type": "object",
-            "nullable": true,
-            "properties": {
-              "numero": { "type": "string" },
-              "validade": { "type": "string", "format": "date" }
+          "cpfFormatado": { "type": "string" },
+          "vinculos": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "CnpjData": {
+        "type": "object",
+        "properties": {
+          "cnpj": { "type": "string" },
+          "razaoSocial": { "type": "string" },
+          "nomeFantasia": { "type": "string" },
+          "situacao": { "type": "string" }
+        }
+      },
+      "EmendaData": { "type": "object", "properties": { "emendaId": { "type": "integer" }, "autor": { "type": "string" }, "valor": { "type": "number" } } },
+      "HistoricoItem": { "type": "object", "properties": { "timestamp": { "type": "string" }, "endpoint": { "type": "string" }, "status": { "type": "integer" } } },
+      "IbgeItem": { "type": "object", "properties": { "id": { "type": "integer" }, "nome": { "type": "string" } } },
+      "OrgaoData": { "type": "object", "properties": { "cod": { "type": "string" }, "nome": { "type": "string" } } },
+      "ServicoData": { "type": "object", "properties": { "cod": { "type": "string" }, "nome": { "type": "string" } } },
+      "ServidorData": { "type": "object", "properties": { "nome": { "type": "string" }, "vinculo": { "type": "string" }, "orgao": { "type": "string" } } }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Recurso não encontrado.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "ok": false,
+              "error": { "code": "NOT_FOUND", "message": "O recurso solicitado não foi encontrado." }
             }
           }
         }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "Token JWT de autenticação obtido no endpoint /auth/login"
+      },
+      "ValidationError": {
+        "description": "Erro de validação (ex: parâmetro obrigatório ausente).",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "ok": false,
+              "error": { "code": "VALIDATION_ERROR", "message": "O parâmetro 'nome' é obrigatório." }
+            }
+          }
+        }
       }
     }
   }

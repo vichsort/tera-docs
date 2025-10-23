@@ -3,6 +3,13 @@ import { ref, onMounted, watch, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import DocsSidebar from '@/components/docs/DocsSidebarComponent.vue'
 
+/**
+ * @file ApiDocsView.vue
+ * @description A "página" principal do sistema de exibição que carrega
+ * e exibe a documentação completa de uma API selecionada. Esta view é
+ * responsável por buscar o arquivo de especificação da API (OpenAPI/Swagger)
+ */
+
 const route = useRoute()
 const apiSpec = ref(null)
 const isLoading = ref(true)
